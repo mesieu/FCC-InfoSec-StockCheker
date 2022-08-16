@@ -9,7 +9,6 @@ mongoose.connect(mongo_URI, {
 
 const stockSchema = new mongoose.Schema({
   name: {type: String, required: true},
-  price: {type: Number, required: true},
   likes: {type: Number, required: true},
 });
 
@@ -20,7 +19,7 @@ function Handler() {
     axios
       .get(`https://stock-price-checker-proxy.freecodecamp.rocks/v1/stock/${stockSymbol}/quote`)
       .then((response) => {
-        return done(null, reponse.data['latestPrice']);
+        return done(null, response.data['latestPrice']);
       })
       .catch((err) => {
         return done(err, null);
@@ -34,64 +33,22 @@ function Handler() {
     });
   };
 
-  this.createStock = (stockSymbol, price, likes, done) => {
+  this.createStock = (stockSymbol, likes, done) => {
     let newStock = new Stock({
       name: stockSymbol,
-      price: price,
       likes: likes,
     });
-    newStock.save().then((savedStock) => {
-      return done(null, savedStock);
+    newStock.save().then((createdStock) => {
+      return done(null, createdStock);
     });
   };
 
-  this.updateStock = (stock, price, likes, done) => {
-    stock.price = price;
+  this.updateStock = (stock, likes, done) => {
     stock.likes += likes;
-    stock.save().then((savedStock) => {
-      return done(null, savedStock);
+    stock.save().then((updatedStock) => {
+      return done(null, updatedStock);
     });
   };
-
-  // this.getStock = (stockSymbol, likes, done) => {
-  //   axios
-  //     .get(`https://stock-price-checker-proxy.freecodecamp.rocks/v1/stock/${stockSymbol}/quote`)
-  //     .then((response) => {
-  //       this.findOneAndUpdateOrCreate(stockSymbol, response.data['latestPrice'], likes, (err, stock) => {
-  //         if (err) return done(err, null);
-  //         return done(null, {
-  //           name: stock.name,
-  //           price: stock.price,
-  //           likes: stock.likes,
-  //         });
-  //       });
-  //     })
-  //     .catch((err) => {
-  //       return done(err, null);
-  //     });
-  // };
-
-  // this.findOneAndUpdateOrCreate = (stockSymbol, price, likes, done) => {
-  //   Stock.findOne({name: stockSymbol}, (err, stock) => {
-  //     if (err) return done(err, null);
-  //     if (stock) {
-  //       stock.price = price;
-  //       stock.likes += likes;
-  //       stock.save().then((savedStock) => {
-  //         return done(null, savedStock);
-  //       });
-  //     } else {
-  //       let newStock = new Stock({
-  //         name: stockSymbol,
-  //         price: price,
-  //         likes: likes,
-  //       });
-  //       newStock.save().then((savedStock) => {
-  //         return done(null, savedStock);
-  //       });
-  //     }
-  //   });
-  // };
 
   this.getStockDataArray = (firstStockSymbol, secondStockSymbol, done) => {
     Stock.find({name: {$in: [firstStockSymbol, secondStockSymbol]}}, (err, stocks) => {
@@ -99,6 +56,12 @@ function Handler() {
       return done(null, stocks);
     });
   };
+
+  this.findIP = () => {};
+
+  this.saveIP = () => {};
+
+  this.hashIP = () => {};
 }
 
 module.exports = Handler;
