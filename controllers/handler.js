@@ -1,5 +1,5 @@
 const axios = require('axios');
-
+const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 const mongo_URI = process.env.MONGO_URI;
 mongoose.connect(mongo_URI, {
@@ -12,7 +12,10 @@ const stockSchema = new mongoose.Schema({
   likes: {type: Number, required: true},
 });
 
+const HashSchema = new mongoose.Schema([{hash: {type: String, required: true}}]);
+
 const Stock = mongoose.model('Stock', stockSchema);
+const Hash = mongoose.model('Hash', HashSchema);
 
 function Handler() {
   this.getStockPrice = (stockSymbol, done) => {
@@ -57,11 +60,12 @@ function Handler() {
     });
   };
 
-  this.findIP = () => {};
-
-  this.saveIP = () => {};
-
-  this.hashIP = () => {};
+  this.hashAndSaveAddress = (address, done) => {
+    const saltRounds = 12;
+    bcrypt.hash(address, saltRounds, (err, hash) => {
+      if (err) return done(err, null);
+    });
+  };
 }
 
 module.exports = Handler;
